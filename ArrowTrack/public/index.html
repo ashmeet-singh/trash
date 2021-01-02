@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Arrow Track</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #ffffff;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #MainRoot {
+            background: #ffffff;
+            display: none;
+        }
+
+        #MainCanvas {
+            z-index: -2;
+        }
+
+        #FullscreenIcon {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            bottom: 4px;
+            right: 4px;
+        }
+
+        #TextDisplay {
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="MainRoot">
+        <canvas id="MainCanvas"></canvas>
+        <p id="TextDisplay"></p>
+    </div>
+    <img src="assets/baseline_fullscreen_black_48dp.png" id="FullscreenIcon" onclick="View.switchToFullscreen()">
+
+    <script src="libraries/jquery-3.5.1.min.js"></script>
+    <script src="scripts/Vector.js"></script>
+    <script src="scripts/View.js"></script>
+    <script src="scripts/CGR.js"></script>
+    <script src="scripts/Arena.js"></script>
+    <script src="scripts/Server.js"></script>
+    <script src="scripts/Controller.js"></script>
+    <script src="scripts/start.js"></script>
+</body>
+
+</html>

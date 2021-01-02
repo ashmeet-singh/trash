@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VG Designer</title>
+</head>
+<style>
+    #GraphCanvas {
+        display: block;
+        margin: 0px auto 10px auto;
+        padding: 0px;
+        background-color: #272727;
+        cursor: none;
+    }
+
+    #SelectedGraphCoord {
+        text-align: center;
+    }
+
+    .flex-center-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    input {
+        width: 100px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+</style>
+
+<body>
+    <canvas id="GraphCanvas"></canvas>
+
+    <p id="SelectedGraphCoord">_</p>
+
+    <div class="flex-center-container">
+        <input id="SelectedRoundNumber" placeholder="Round Number">
+        <input id="SelectedFillStyle" placeholder="Fill Style">
+        <input id="SelectedStrokeStyle" placeholder="Stroke Style">
+        <input id="SelectedLineWidth" placeholder="Line Width">
+    </div>
+    <div class="flex-center-container">
+        <button onclick="engine.onButtonClick(this)">Edit Manually</button>
+        <button onclick="engine.onButtonClick(this)">Done</button>
+        <button onclick="engine.onButtonClick(this)">Circle</button>
+        <button onclick="engine.onButtonClick(this)">Polygon</button>
+        <button onclick="engine.onButtonClick(this)">Polyline</button>
+        <button onclick="engine.onButtonClick(this)">Undo</button>
+    </div>
+    <script>
+        function S(id) { return document.getElementById(id); }
+
+        function ctxrvg(ctx, vectorGraphic, translate, rotationAngle, scale) {
+            if (translate !== undefined) { ctx.translate(translate.x, translate.y); };
+            if (rotationAngle !== undefined) { ctx.rotate(rotationAngle); };
+            if (scale !== undefined) { ctx.scale(scale.x, scale.y); };
+
+            function SV(v1, v2) { if (v1 !== undefined) { return v1; } else { return v2 }; };
+
+            var elem, i, l = vectorGraphic.length;
+            for (i = 0; i < l; i++) {
+                elem = vectorGraphic[i];
+
+                ctx.fillStyle = SV(elem.fillStyle, '#000000');
+                ctx.strokeStyle = SV(elem.strokeStyle, '#000000');
+                ctx.lineWidth = SV(elem.lineWidth, 1);
+
+                if (elem.name === 'circle') {
+                    if (elem.fill === true) {
+                        ctx.beginPath();
+                        ctx.arc(elem.x, elem.y, elem.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    };
+                    if (elem.stroke === true) {
+                        ctx.beginPath();
+                        ctx.arc(elem.x, elem.y, elem.radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                    };
+                } else if (elem.name === 'polygon') {
+                    if (elem.fill === true) {
+                        ctx.beginPath();
+                        var i1, l1 = elem.points.length / 2;
+                        ctx.moveTo(elem.points[0], elem.points[1]);
+                        for (i1 = 1; i1 < l1; i1++) { ctx.lineTo(elem.points[i1 * 2], elem.points[(i1 * 2) + 1]); };
+                        ctx.closePath();
+                        ctx.fill();
+                    };
+                    if (elem.stroke === true) {
+                        ctx.beginPath();
+                        var i1, l1 = elem.points.length / 2;
+                        ctx.moveTo(elem.points[0], elem.points[1]);
+                        for (i1 = 1; i1 < l1; i1++) { ctx.lineTo(elem.points[i1 * 2], elem.points[(i1 * 2) + 1]); };
+                        ctx.closePath();
+                        ctx.stroke();
+                    };
+                } else if (elem.name === 'polyline') {
+                    ctx.beginPath();
+                    var i1, l1 = elem.points.length / 2;
+                    ctx.moveTo(elem.points[0], elem.points[1]);
+                    for (i1 = 1; i1 < l1; i1++) { ctx.lineTo(elem.points[i1 * 2], elem.points[(i1 * 2) + 1]); };
+                    ctx.stroke();
+                };
+            };
+
+            if (scale !== undefined) { ctx.scale(1 / scale.x, 1 / scale.y); };
+            if (rotationAngle !== undefined) { ctx.rotate(-rotationAngle); };
+            if (translate !== undefined) { ctx.translate(-translate.x, -translate.y); };
+        }
+
+        var graph = (function () {
+            var THIS = {
+                cvs: S('GraphCanvas'),
+                ctx: S('GraphCanvas').getContext('2d'),
+                state: {
+                    selectedCoord: null,
+                    isDrawing: false,
+                    drawingName: null
+                },
+                graphics: [],
+                config: {
+                    cursor: {
+                        radius: 2,
+                    },
+                    translate: {
+                        x: 0,
+                        y: 0
+                    }
+                },
+                translate: function (x, y) {
+                    THIS.config.translate.x += x;
+                    THIS.config.translate.y += y;
+                    THIS.ctx.translate(x, y);
+                },
+                getBoundingClientRect: function () {
+                    return THIS.cvs.getBoundingClientRect();
+                },
+                clear: function () {
+                    THIS.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    THIS.ctx.clearRect(0, 0, THIS.cvs.width, THIS.cvs.height);
+                    THIS.ctx.translate(THIS.config.translate.x, THIS.config.translate.y);
+                },
+                setDimensions: function (width, height) {
+                    THIS.cvs.width = width;
+                    THIS.cvs.height = height;
+                    THIS.cvs.style.width = width + 'px';
+                    THIS.cvs.style.height = height + 'px';
+                    THIS.translate(width / 2, height / 2);
+                },
+                arc: function (x, y, r, s, e) {
+                    if (s === undefined || e === undefined) { s = 0; e = Math.PI * 2; };
+                    THIS.ctx.arc(x, y, r, s, e);
+                },
+                fillArc: function (x, y, r, s, e) {
+                    THIS.ctx.beginPath();
+                    THIS.arc(x, y, r, s, e);
+                    THIS.ctx.fill();
+                },
+                drawCursor: function (x, y) {
+                    THIS.ctx.fillStyle = '#ffffff';
+                    THIS.fillArc(x, y, THIS.config.cursor.radius, 0, 2 * Math.PI);
+                    THIS.ctx.fillStyle = '#000000';
+                    THIS.fillArc(x, y, THIS.config.cursor.radius / 2, 0, 2 * Math.PI);
+                },
+                drawGraphics: function () {
+                    ctxrvg(THIS.ctx, THIS.graphics);
+                },
+                mouseMove: function (x, y) {
+                    lastGraphics = JSON.parse(JSON.stringify(THIS.graphics));
+
+                    if (THIS.state.isDrawing === true) {
+                        var elem = THIS.graphics[THIS.graphics.length - 1];
+                        if (elem.name === 'circle') {
+                            elem.radius = Math.sqrt(Math.pow(elem.x - x, 2) + Math.pow(elem.y - y, 2));
+                        } else if (THIS.state.drawingName === 'polygon' || THIS.state.drawingName === 'polyline') {
+                            elem.points.push(x);
+                            elem.points.push(y);
+                        };
+                    };
+
+                    THIS.clear();
+                    THIS.drawGraphics();
+                    THIS.drawCursor(x, y);
+
+                    THIS.graphics = lastGraphics;
+                },
+                mouseClick: function (x, y, fillStyle, strokeStyle, lineWidth) {
+                    if (THIS.state.isDrawing === true) {
+                        var elem = THIS.graphics[THIS.graphics.length - 1];
+                        if (elem.name === 'circle') {
+                            elem.radius = Math.sqrt(Math.pow(elem.x - x, 2) + Math.pow(elem.y - y, 2));
+                            graph.state.isDrawing = false;
+                        } else if (THIS.state.drawingName === 'polygon' || THIS.state.drawingName === 'polyline') {
+                            elem.points.push(x);
+                            elem.points.push(y);
+                        };
+                    }
+                    else if (THIS.state.isDrawing === false) {
+                        if (THIS.state.drawingName === 'circle') {
+                            var elem = { name: 'circle', x: x, y: y, radius: 0 };
+                            if (fillStyle !== '') { elem.fill = true; elem.fillStyle = fillStyle; }
+                            if (strokeStyle !== '' && lineWidth !== 0) { elem.stroke = true; elem.strokeStyle = strokeStyle; elem.lineWidth = lineWidth; };
+                            THIS.graphics.push(elem);
+                            THIS.state.isDrawing = true;
+                        } else if (THIS.state.drawingName === 'polygon') {
+                            var elem = { name: 'polygon', points: [x, y] };
+                            if (fillStyle !== '') { elem.fill = true; elem.fillStyle = fillStyle; }
+                            if (strokeStyle !== '' && lineWidth !== 0) { elem.stroke = true; elem.strokeStyle = strokeStyle; elem.lineWidth = lineWidth; };
+                            THIS.graphics.push(elem);
+                            THIS.state.isDrawing = true;
+                        } else if (THIS.state.drawingName === 'polyline') {
+                            var elem = { name: 'polyline', points: [x, y] };
+                            if (strokeStyle !== '' && lineWidth !== 0) { elem.stroke = true; elem.strokeStyle = strokeStyle; elem.lineWidth = lineWidth; };
+                            THIS.graphics.push(elem);
+                            THIS.state.isDrawing = true;
+                        };
+                    };
+
+                    THIS.clear();
+                    THIS.drawGraphics();
+                }
+            };
+
+            return THIS;
+        })();
+
+        var UI = (function () {
+            var THIS = {
+                elem: {
+                    roundNumber: S('SelectedRoundNumber'),
+                    graphCoord: S('SelectedGraphCoord'),
+                    fillStyle: S('SelectedFillStyle'),
+                    strokeStyle: S('SelectedStrokeStyle'),
+                    lineWidth: S('SelectedLineWidth')
+                },
+                setCoord: function (x, y) { THIS.elem.graphCoord.innerText = x + ' ' + y; },
+                getRoundNumber: function () { return Number(THIS.elem.roundNumber.value); },
+                getLineWidth: function () { return Number(THIS.elem.lineWidth.value); },
+                getFillStyle: function () { return THIS.elem.fillStyle.value; },
+                getStrokeStyle: function () { return THIS.elem.strokeStyle.value; },
+                setRoundNumber: function (v) { THIS.elem.roundNumber.value = v; }
+            };
+
+            return THIS;
+        })();
+
+        var engine = (function () {
+            var THIS = {
+                onButtonClick: function (button) {
+                    var text = button.innerText.toLowerCase();
+                    if (text === 'circle' || text === 'polygon' || text === 'polyline') {
+                        graph.state.drawingName = text;
+                    } else if (text === 'done') {
+                    } else if (text === 'undo') {
+                        if (graph.graphics.length !== 0) { graph.graphics.length--; };
+                    } else if (text === 'edit manually') {
+                        var input = window.prompt('JSON', JSON.stringify(graph.graphics));
+                        if (input !== null) { graph.graphics = JSON.parse(input); };
+                    };
+                    if (text === 'edit manually' || text === 'undo' || text === 'done') {
+                        graph.state.isDrawing = false;
+                        graph.clear();
+                        graph.drawGraphics();
+                    };
+                },
+                getCursorPositionOnCanvas: function (log) {
+                    var bound = graph.getBoundingClientRect(),
+                        roundNumber = UI.getRoundNumber(),
+                        x = Math.round((log.clientX - bound.x) / roundNumber) * roundNumber,
+                        y = Math.round((log.clientY - bound.y) / roundNumber) * roundNumber;
+                    x -= graph.config.translate.x;
+                    y -= graph.config.translate.y;
+                    return { x: x, y: y };
+                },
+                initialize: function () {
+                    graph.setDimensions(500, 500);
+
+                    if (UI.getRoundNumber() === 0) { UI.setRoundNumber(1); };
+
+                    graph.cvs.addEventListener('mousemove', function (log) {
+                        var p = THIS.getCursorPositionOnCanvas(log);
+
+                        graph.mouseMove(p.x, p.y);
+                        UI.setCoord(p.x, p.y);
+                    });
+
+                    graph.cvs.addEventListener('click', function (log) {
+                        var p = THIS.getCursorPositionOnCanvas(log);
+
+                        graph.mouseClick(p.x, p.y, UI.getFillStyle(), UI.getStrokeStyle(), UI.getLineWidth());
+                    });
+                }
+            };
+
+            return THIS;
+        })();
+
+        engine.initialize();
+    </script>
+</body>
+
+</html>
