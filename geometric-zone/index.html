@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Geometric Zone</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #ffffff;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #Play,
+        #Help,
+        #Settings,
+        #ResumeFight,
+        #RestartFight,
+        #ExitFight,
+        .no_select {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #RightJoystick,
+        #LeftJoystick,
+        #PauseIcon,
+        #MainRoot {
+            display: none;
+        }
+
+        #MainRoot {
+            background: #000000;
+        }
+
+        #MainCanvas {
+            background: #000000;
+        }
+
+        #FullscreenIcon {
+            position: fixed;
+            width: 24px;
+            height: 24px;
+            bottom: 4px;
+            right: 4px;
+        }
+
+        #PauseIcon {
+            position: fixed;
+            width: 28px;
+            height: 28px;
+            top: 4px;
+            left: 4px;
+        }
+
+        #LeftJoystick,
+        #RightJoystick {
+            background-color: #ffffff;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        #MainMenu,
+        #PauseMenu {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #PauseMenu {
+            display: none;
+        }
+
+        #MainMenu>h2,
+        #PauseMenu>h2 {
+            color: #66fcf1;
+            margin: 5px;
+            padding: 10px;
+            width: 200px;
+            background-color: #000000;
+            border-style: solid;
+            text-align: center;
+            border-width: 1px;
+            border-color: #ffffff;
+        }
+
+        #MainMenu>h1 {
+            color: #66fcf1;
+            padding: 10px;
+            margin: 0px 0px 10px 0px;
+            text-align: center;
+            border-style: solid;
+            text-align: center;
+            border-width: 0px 0px 4px 0px;
+            border-color: #66fcf1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="MainRoot">
+        <canvas id="MainCanvas"></canvas>
+        <div id="LeftJoystick"></div>
+        <div id="RightJoystick"></div>
+        <img src="images/pause_white_48dp.png" id="PauseIcon">
+        <div id="MainMenu">
+            <h1 class="no_select">Geometric Zone</h1>
+            <h2 id="Play">Play</h2>
+            <h2 id="Help">Help</h2>
+            <h2 id="Settings">Settings</h2>
+        </div>
+        <div id="PauseMenu">
+            <h2 id="ResumeFight">Resume</h2>
+            <h2 id="RestartFight">Restart</h2>
+            <h2 id="ExitFight">Exit</h2>
+        </div>
+    </div>
+    <img src="images/fullscreen_white_48dp.png" id="FullscreenIcon">
+
+    <script src="js/Vector.js"></script>
+    <script src="js/Common.js"></script>
+    <script src="js/Ship.js"></script>
+    <script src="js/CollisionResolver.js"></script>
+    <script src="js/CGR.js"></script>
+    <script src="js/Events.js"></script>
+    <script src="js/JoystickHandler.js"></script>
+    <script src="js/View.js"></script>
+    <script src="js/Destroyer.js"></script>
+    <script src="js/Bullet.js"></script>
+    <script src="js/Fight.js"></script>
+    <script src="js/objects-properties/Fight/create.js"></script>
+    <script src="js/objects-properties/Fight/start.js"></script>
+    <script src="js/objects-properties/Fight/stop.js"></script>
+    <script src="js/objects-properties/Fight/beforeTick.js"></script>
+    <script src="js/objects-properties/Fight/afterTick.js"></script>
+    <script src="js/objects-properties/Fight/update.js"></script>
+    <script src="js/objects-properties/Fight/render.js"></script>
+    <script src="js/initialize.js"></script>
+</body>
+
+</html>
