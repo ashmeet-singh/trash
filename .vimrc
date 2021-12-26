@@ -1,0 +1,14 @@
+set nocompatible
+syntax on
+set noerrorbells
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set smartindent
+set nowrap
+set number
+set relativenumber
+set noswapfile
+set incsearch
+set scrolloff=5
