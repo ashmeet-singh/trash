@@ -1,4 +1,5 @@
 set nocompatible
+filetype plugin indent on
 syntax on
 set noerrorbells
 set tabstop=4
@@ -12,3 +13,4 @@ set relativenumber
 set noswapfile
 set incsearch
 set scrolloff=5
+set hidden
