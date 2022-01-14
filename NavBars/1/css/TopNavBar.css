@@ -1,0 +1,47 @@
+#TopNavBar {
+    display: flex;
+    flex-direction: column;
+    background-color: #1a73e8;
+}
+    
+#TopNavBarOptions {
+    display: none;
+    flex-direction: column;
+}
+
+#TopNavBarNameView {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#TopNavBarOptions a {
+    text-align: center;
+}
+#TopNavBarMenuIcon,
+#TopNavBarCloseIcon {
+    display: inline;
+}
+
+#TopNavBarCloseIcon {
+    display: none;
+}
+
+@media only screen and (min-width: 768px) {
+    #TopNavBarNameView img {
+        display:none;
+    }
+
+    #TopNavBar {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    #TopNavBarOptions {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+}
